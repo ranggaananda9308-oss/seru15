@@ -39,12 +39,16 @@
         let crashMultiplier = 2.00, spacemanX = 50, spacemanY = 150, angle = 0;
 
         // SISTEM ANTI-CACHE (Bisa ganti angka berkali-kali)
-        setInterval(() => {
-            fetch(GITHUB_RAW, { cache: "no-store" })
-                .then(res => res.json())
-                .then(data => { crashMultiplier = parseFloat(data.angka); })
-                .catch(() => console.log("Cek Remote..."));
-        }, 1000);
+setInterval(() => {
+    fetch(GITHUB_RAW, { cache: 'no-store' })
+        .then(res => res.json())
+        .then(data => { 
+            crashMultiplier = parseFloat(data.angka);
+            console.log("Remote Terupdate: " + crashMultiplier);
+        })
+        .catch(() => console.log("Cek sinyal remote..."));
+}, 1000);
+        
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
