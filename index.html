@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPACEMAN VIP GACOR</title>
     <style>
-        body { background: #000; color: #fff; font-family: 'Arial', sans-serif; text-align: center; margin: 0; padding: 20px; }
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 20px; }
         .container { max-width: 400px; margin: auto; border: 2px solid #333; padding: 20px; border-radius: 15px; background: #0a0a0a; }
-        canvas { background: #050505; border-radius: 10px; width: 100%; height: auto; margin-bottom: 10px; }
+        canvas { background: #050505; border-radius: 10px; width: 100%; height: auto; }
         #multiplier { font-size: 50px; color: #0f0; font-weight: bold; margin: 15px 0; }
-        .stat-box { display: flex; justify-content: space-around; margin-bottom: 15px; font-size: 18px; }
-        input { width: 80%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: none; font-size: 16px; text-align: center; }
-        .btn { width: 100%; padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; border-radius: 5px; text-transform: uppercase; }
+        input { width: 80%; padding: 12px; margin-bottom: 15px; border-radius: 5px; border: none; text-align: center; }
+        .btn { width: 100%; padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 5px; border: none; text-transform: uppercase; }
         #btn-bet { background: #007bff; color: white; }
         #btn-cashout { background: #ff9800; color: white; display: none; }
     </style>
@@ -19,12 +18,11 @@
 <body>
     <div class="container">
         <h2>👨‍🚀 SPACEMAN VIP</h2>
-        <div class="stat-box">
-            <span>Saldo: <b id="balance">1000</b></span>
-        </div>
+        <p>Saldo: <b id="balance">1000</b></p>
         <div id="multiplier">1.00x</div>
         <canvas id="gameCanvas" width="400" height="250"></canvas>
-        <input type="number" id="bet-amount" value="10" min="1">
+        <br><br>
+        <input type="number" id="bet-amount" value="10">
         <button id="btn-bet" class="btn" onclick="startRun()">PASANG TARUHAN</button>
         <button id="btn-cashout" class="btn" onclick="cashOut()">AMBIL UNTUNG</button>
     </div>
@@ -35,24 +33,23 @@
         const multiplierEl = document.getElementById('multiplier');
         const balanceEl = document.getElementById('balance');
         
-        // LINK REMOTE OTOMATIS KE AKUN LU
         const GITHUB_RAW = "https://raw.githubusercontent.com/ranggaananda9308-oss/spaceman-gacor777/main/remote2.json";
 
         let balance = 1000, isRunning = false, currentMultiplier = 1.00;
         let crashMultiplier = 2.00, spacemanX = 50, spacemanY = 150, angle = 0;
 
-        // SISTEM PENYADAP REMOTE (Cek tiap 1 detik)
+        // SISTEM ANTI-CACHE (Bisa ganti angka berkali-kali)
         setInterval(() => {
-            fetch(GITHUB_RAW)
+            fetch(GITHUB_RAW, { cache: "no-store" })
                 .then(res => res.json())
                 .then(data => { crashMultiplier = parseFloat(data.angka); })
-                .catch(() => console.log("Menunggu Remote..."));
+                .catch(() => console.log("Cek Remote..."));
         }, 1000);
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#fff';
-            for(let i=0; i<30; i++) ctx.fillRect(Math.random()*canvas.width, Math.random()*canvas.height, 2, 2);
+            for(let i=0; i<30; i++) ctx.fillRect(Math.random()*400, Math.random()*250, 2, 2);
             ctx.font = '50px Arial';
             ctx.fillText('👨‍🚀', spacemanX, spacemanY);
         }
@@ -63,13 +60,15 @@
             angle += 0.05;
             spacemanY = 150 + Math.sin(angle) * 25;
             spacemanX += 0.6;
-
-            // AKSELERASI GACOR (Biar tembus angka 10.00+)
             currentMultiplier += 0.05 * (1 + currentMultiplier * 0.06);
             multiplierEl.innerText = currentMultiplier.toFixed(2) + 'x';
 
             if (currentMultiplier >= crashMultiplier) {
-                endGame(true);
+                isRunning = false;
+                multiplierEl.style.color = 'red';
+                multiplierEl.innerText = "BOOM! @ " + currentMultiplier.toFixed(2) + "x";
+                document.getElementById('btn-bet').style.display = 'block';
+                document.getElementById('btn-cashout').style.display = 'none';
             } else {
                 requestAnimationFrame(update);
             }
@@ -77,7 +76,7 @@
 
         function startRun() {
             let bet = parseInt(document.getElementById('bet-amount').value);
-            if (bet > balance || isNaN(bet)) return alert("Cek Saldo/Bet!");
+            if (bet > balance || isNaN(bet)) return alert("Cek Saldo!");
             balance -= bet; balanceEl.innerText = balance;
             isRunning = true; currentMultiplier = 1.00; spacemanX = 50;
             multiplierEl.style.color = '#0f0';
@@ -90,16 +89,8 @@
             if (!isRunning) return;
             let win = parseInt(document.getElementById('bet-amount').value) * currentMultiplier;
             balance += Math.floor(win); balanceEl.innerText = balance;
-            alert("🤑 PROFIT: " + win.toFixed(2) + "x");
-            endGame(false);
-        }
-
-        function endGame(isCrash) {
             isRunning = false;
-            if (isCrash) {
-                multiplierEl.style.color = 'red';
-                multiplierEl.innerText = "BOOM! @ " + currentMultiplier.toFixed(2) + "x";
-            }
+            alert("🤑 PROFIT: " + win.toFixed(2));
             document.getElementById('btn-bet').style.display = 'block';
             document.getElementById('btn-cashout').style.display = 'none';
         }
